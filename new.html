@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sheru - Accountant & Tax Consultant</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons (used for the navigation) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* Define custom Tailwind configuration */
+        :root {
+            /* Scroll smooth behavior applied to the root element for navigation */
+            scroll-behavior: smooth;
+        }
+
+        /* Styling for the sticky icon-only navigation */
+        #main-nav {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item {
+            /* Base styling for all navigation buttons */
+            @apply p-3 md:p-4 rounded-xl text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200 cursor-pointer flex justify-center items-center;
+        }
+        
+        .nav-item.active {
+            /* Active state styling */
+            @apply bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 shadow-md;
+        }
+
+        /* Ensure the main content has space for the fixed nav on desktop */
+        @media (min-width: 768px) {
+            #main-content {
+                padding-left: 5rem; /* Space for the 5rem wide sidebar */
+            }
+        }
+        
+        /* Set the Inter font as default */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Style for section headers */
+        .section-header {
+            @apply text-4xl md:text-5xl font-extrabold mb-4 text-gray-900 dark:text-white;
+        }
+        .section-subheader {
+            @apply text-xl text-gray-600 dark:text-gray-400 mb-10;
+        }
+    </style>
+    
+    <script>
+        // Use the 'Inter' font via a simple CSS rule
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': {
+                            100: '#E0F2FE',
+                            600: '#2563EB',
+                            800: '#1E40AF',
+                        },
+                    }
+                }
+            }
+        }
+        
+        // --- Dark Mode Logic ---
+        function initializeDarkMode() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('theme');
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+            // Set the toggle button icon based on the current state
+            updateThemeToggleIcon();
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeToggleIcon();
+        }
+
+        function updateThemeToggleIcon() {
+            const toggleIcon = document.getElementById('theme-toggle-icon');
+            if (toggleIcon) {
+                const isDark = document.documentElement.classList.contains('dark');
+                toggleIcon.innerHTML = isDark ? 
+                    '<i data-lucide="sun" class="w-6 h-6"></i>' : 
+                    '<i data-lucide="moon" class="w-6 h-6"></i>';
+                lucide.createIcons(); // Re-render Lucide icons
+            }
+        }
+        
+        // --- Navigation and Scrolling Logic ---
+        let observer;
+
+        function setActiveNav(id) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const activeLink = document.querySelector(`.nav-item[href="#${id}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        function initializeScrollSpy() {
+            const sections = document.querySelectorAll('.content-section');
+            const options = {
+                root: null, // Use the viewport as the container
+                rootMargin: '0px 0px -50% 0px', // When the section is roughly halfway in the viewport
+                threshold: 0
+            };
+
+            observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Check if the section ID is a valid navigation target
+                        if (entry.target.id && document.querySelector(`.nav-item[href="#${entry.target.id}"]`)) {
+                            setActiveNav(entry.target.id);
+                        }
+                    }
+                });
+            }, options);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        }
+        
+        // --- Initialize App ---
+        window.onload = function() {
+            initializeDarkMode();
+            initializeScrollSpy();
+            lucide.createIcons(); // Initialize all Lucide icons on the page
+            
+            // Initial active state for Home section
+            setActiveNav('home');
+        };
+    </script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300 min-h-screen font-inter">
+
+    <!-- 
+        ===================================================================
+        Icon-Only Navigation Sidebar (Fixed/Sticky)
+        ===================================================================
+    -->
+    <nav id="main-nav" class="fixed inset-y-0 left-0 w-20 bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700 z-50 p-4 flex flex-col items-center justify-between md:flex hidden md:block">
+        
+        <div class="flex flex-col items-center space-y-4 pt-4">
+            <!-- Logo/Initial -->
+            <div class="text-4xl font-black text-blue-600 dark:text-blue-400 mb-6">S</div>
+            
+            <!-- Navigation Links -->
+            <a href="#home" class="nav-item active" title="Home">
+                <i data-lucide="home" class="w-6 h-6"></i>
+            </a>
+            
+            <a href="#services" class="nav-item" title="Services">
+                <i data-lucide="briefcase" class="w-6 h-6"></i>
+            </a>
+            
+            <a href="#info" class="nav-item" title="Accounting & Tax Info">
+                <i data-lucide="book-open-text" class="w-6 h-6"></i>
+            </a>
+            
+            <a href="#investment" class="nav-item" title="Investment Data">
+                <i data-lucide="trending-up" class="w-6 h-6"></i>
+            </a>
+            
+            <a href="#about" class="nav-item" title="About Me">
+                <i data-lucide="user" class="w-6 h-6"></i>
+            </a>
+            
+            <a href="#contact" class="nav-item" title="Contact">
+                <i data-lucide="mail" class="w-6 h-6"></i>
+            </a>
+        </div>
+        
+        <!-- Theme Toggle Button -->
+        <button onclick="toggleTheme()" class="nav-item mb-4" title="Toggle Light/Dark Mode">
+            <span id="theme-toggle-icon">
+                <!-- Icon will be set by JS -->
+            </span>
+        </button>
+    </nav>
+    
+    <!-- 
+        ===================================================================
+        Mobile Navigation Bar (Fixed at Bottom)
+        ===================================================================
+    -->
+    <nav class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 shadow-2xl z-50 p-2 flex justify-around items-center md:hidden border-t border-gray-200 dark:border-gray-700">
+        <a href="#home" class="nav-item active">
+            <i data-lucide="home" class="w-5 h-5"></i>
+        </a>
+        <a href="#services" class="nav-item">
+            <i data-lucide="briefcase" class="w-5 h-5"></i>
+        </a>
+        <a href="#info" class="nav-item">
+            <i data-lucide="book-open-text" class="w-5 h-5"></i>
+        </a>
+        <a href="#investment" class="nav-item">
+            <i data-lucide="trending-up" class="w-5 h-5"></i>
+        </a>
+        <a href="#about" class="nav-item">
+            <i data-lucide="user" class="w-5 h-5"></i>
+        </a>
+        <a href="#contact" class="nav-item">
+            <i data-lucide="mail" class="w-5 h-5"></i>
+        </a>
+        <button onclick="toggleTheme()" class="nav-item" title="Toggle Light/Dark Mode">
+            <span id="theme-toggle-icon-mobile">
+                <!-- Icon will be set by JS -->
+            </span>
+        </button>
+        <script>
+             // Duplicate updateThemeToggleIcon for mobile nav since the HTML structure is slightly different
+            function updateThemeToggleIcon() {
+                const isDark = document.documentElement.classList.contains('dark');
+                const iconHtml = isDark ? 
+                    '<i data-lucide="sun" class="w-6 h-6 md:w-5 md:h-5"></i>' : 
+                    '<i data-lucide="moon" class="w-6 h-6 md:w-5 md:h-5"></i>';
+
+                const desktopToggle = document.getElementById('theme-toggle-icon');
+                const mobileToggle = document.getElementById('theme-toggle-icon-mobile');
+                
+                if (desktopToggle) desktopToggle.innerHTML = iconHtml;
+                if (mobileToggle) mobileToggle.innerHTML = iconHtml;
+                lucide.createIcons();
+            }
+        </script>
+    </nav>
+
+    <!-- 
+        ===================================================================
+        Main Content Area
+        ===================================================================
+    -->
+    <main id="main-content" class="md:p-8 p-4 pt-10 min-h-screen">
+        <div class="max-w-4xl mx-auto pb-32 md:pb-16">
+            
+            <!-- 1. Home Section -->
+            <section id="home" class="content-section min-h-screen flex items-center justify-center py-20">
+                <div class="text-center p-8 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
+                    <p class="text-xl text-blue-600 dark:text-blue-400 font-semibold mb-3 tracking-wider uppercase">Welcome</p>
+                    <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white leading-tight">
+                        <span class="text-blue-600 dark:text-blue-400">Sheru</span>, <br class="md:hidden">
+                        Your Trusted Accountant
+                    </h1>
+                    <p class="mt-6 text-2xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+                        Delivering precise financial solutions for businesses and individuals—from ITR filing to comprehensive auditing.
+                    </p>
+                    <a href="#services" class="mt-10 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transform hover:scale-105 transition duration-300">
+                        Explore My Services
+                    </a>
+                </div>
+            </section>
+
+            <!-- 2. Services Section -->
+            <section id="services" class="content-section py-20 border-t border-gray-200 dark:border-gray-700">
+                <h2 class="section-header">Services I Provide</h2>
+                <p class="section-subheader">
+                    Comprehensive financial and tax expertise tailored to meet your compliance and growth needs.
+                </p>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Service Card 1: ITR Filing -->
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 border border-gray-200 dark:border-gray-700">
+                        <i data-lucide="file-text" class="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">ITR Filing</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Accurate and timely filing of Income Tax Returns for salaried individuals, businesses, and entities.</p>
+                    </div>
+
+                    <!-- Service Card 2: GST -->
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 border border-gray-200 dark:border-gray-700">
+                        <i data-lucide="landmark" class="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">GST Compliance</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Handling GST registration, return filings, and ongoing compliance to avoid penalties.</p>
+                    </div>
+
+                    <!-- Service Card 3: Accounting -->
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 border border-gray-200 dark:border-gray-700">
+                        <i data-lucide="calculator" class="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Bookkeeping & Accounting</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Maintaining meticulous financial records, ledgers, and preparing financial statements.</p>
+                    </div>
+                    
+                    <!-- Service Card 4: Auditing -->
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 border border-gray-200 dark:border-gray-700">
+                        <i data-lucide="check-check" class="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Auditing & Assurance</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Independent examination of financial statements to provide assurance on fairness and compliance.</p>
+                    </div>
+                    
+                    <!-- Service Card 5: Tax Planning -->
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 border border-gray-200 dark:border-gray-700">
+                        <i data-lucide="dollar-sign" class="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Tax Planning</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Strategic advice to legally minimize tax liabilities and optimize financial structures.</p>
+                    </div>
+                    
+                    <!-- Service Card 6: Regulatory Compliance -->
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 border border-gray-200 dark:border-gray-700">
+                        <i data-lucide="gavel" class="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Corporate Compliance</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Ensuring adherence to all corporate and regulatory requirements beyond tax.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Accounting and Taxation Info Section -->
+            <section id="info" class="content-section py-20 border-t border-gray-200 dark:border-gray-700">
+                <h2 class="section-header">Accounting & Taxation Insights</h2>
+                <p class="section-subheader">
+                    Stay informed with key updates and foundational knowledge in accounting standards and tax laws.
+                </p>
+
+                <div class="p-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Featured Topic: Latest GST Amendments</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        This section is dedicated to sharing valuable, up-to-date information. Here you can post articles, downloadable PDFs, or short summaries regarding changes in ITR due dates, GST rate variations, or new accounting standards (e.g., IFRS/AS updates).
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-2">
+                        <li>Understanding the New Tax Regime vs. Old Tax Regime.</li>
+                        <li>Key considerations for MSME audits.</li>
+                        <li>Checklist for year-end book closure.</li>
+                    </ul>
+                    <button class="mt-6 text-blue-600 dark:text-blue-400 font-medium hover:underline">
+                        Read More Articles <i data-lucide="arrow-right" class="w-4 h-4 inline ml-1"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 4. Investment Data Section -->
+            <section id="investment" class="content-section py-20 border-t border-gray-200 dark:border-gray-700">
+                <h2 class="section-header">Investment Data Analysis</h2>
+                <p class="section-subheader">
+                    Tools and data insights to help you align your investments with your tax strategy.
+                </p>
+
+                <div class="p-8 bg-blue-50 dark:bg-gray-800 rounded-xl shadow-xl border border-blue-200 dark:border-gray-700">
+                    <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Tax-Efficient Investment Planning</h3>
+                    <div class="text-gray-600 dark:text-gray-400 space-y-4">
+                        <p>
+                            While I focus on accounting, this area is designed to integrate financial data (like expected returns, tax implications of Capital Gains/Losses, and Section 80C instruments). You can embed charts, calculators, or market snapshots here.
+                        </p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-white dark:bg-gray-700 rounded-lg">
+                                <p class="text-sm text-gray-500 dark:text-gray-300">Section 80C Limit Status</p>
+                                <p class="text-3xl font-bold text-green-600 dark:text-green-400">₹ 1.5 Lakh</p>
+                            </div>
+                            <div class="p-4 bg-white dark:bg-gray-700 rounded-lg">
+                                <p class="text-sm text-gray-500 dark:text-gray-300">Upcoming Tax Deadlines</p>
+                                <p class="text-3xl font-bold text-red-600 dark:text-red-400">Q4 Advance Tax</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. About Section -->
+            <section id="about" class="content-section py-20 border-t border-gray-200 dark:border-gray-700">
+                <h2 class="section-header">About Sheru</h2>
+                <p class="section-subheader">
+                    My background, commitment, and why clients trust my expertise.
+                </p>
+
+                <div class="md:flex gap-10 items-center p-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
+                    <!-- Placeholder Profile Picture/Icon -->
+                    <div class="flex-shrink-0 mb-6 md:mb-0">
+                        <div class="w-32 h-32 flex items-center justify-center bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-600 dark:text-blue-400 text-6xl font-extrabold">
+                            S
+                        </div>
+                    </div>
+                    
+                    <!-- Bio Content -->
+                    <div class="flex-grow">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Hello, I am Sheru.</h3>
+                        <p class="text-lg text-gray-700 dark:text-gray-300 mb-4">
+                            I am a professional **Accountant** dedicated to providing clarity and efficiency in your financial life. With years of experience across various industries, I specialize in ensuring full regulatory compliance while offering strategic advice to minimize tax burdens and maximize financial health.
+                        </p>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            My approach is simple: meticulous attention to detail combined with proactive, client-focused consulting. Whether you are an individual needing ITR support or a company requiring comprehensive auditing, I am here to be your reliable financial partner.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Contact Section -->
+            <section id="contact" class="content-section py-20 border-t border-gray-200 dark:border-gray-700">
+                <h2 class="section-header">Get In Touch</h2>
+                <p class="section-subheader">
+                    Ready to streamline your accounting and taxation? Reach out today.
+                </p>
+
+                <div class="text-center p-8 bg-blue-600 rounded-xl shadow-2xl">
+                    <i data-lucide="mail" class="w-12 h-12 text-white mb-4"></i>
+                    <h3 class="text-3xl font-bold text-white mb-3">Drop Me a Line</h3>
+                    <p class="text-xl text-blue-100 mb-6">
+                        You can reach me directly via email at:
+                    </p>
+                    
+                    <!-- Use mailto link for your email ID -->
+                    <a href="mailto:sheru.accountant@example.com" class="inline-block bg-white text-blue-600 font-extrabold py-3 px-8 rounded-full shadow-lg text-lg hover:bg-gray-100 transition duration-300">
+                        sheru.accountant@example.com
+                    </a>
+                    <p class="mt-4 text-blue-200 text-sm">
+                        (Please replace this placeholder email with your actual ID.)
+                    </p>
+                </div>
+            </section>
+            
+        </div>
+    </main>
+    
+    <!-- Footer (to provide padding/space above the mobile navigation bar) -->
+    <footer class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm md:ml-20">
+        <p>&copy; <span id="current-year"></span> Sheru - Professional Accounting Services. Built with Gemini.</p>
+        <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+    </footer>
+
+</body>
+</html>
